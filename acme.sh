@@ -68,8 +68,8 @@ acme_cert(){
     else
         realip
     fi
-    
-    read -p "请输入需要申请证书的域名：" domain
+
+    domain=$1
     [[ -z $domain ]] && red "未输入域名，无法执行操作！" && exit 1
     green "已输入的域名：$domain" && sleep 1
 
@@ -113,4 +113,4 @@ acme_cert(){
     fi
 }
 
-acme_cert
+acme_cert $1
