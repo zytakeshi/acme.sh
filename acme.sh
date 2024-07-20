@@ -113,4 +113,41 @@ acme_cert(){
     fi
 }
 
-acme_cert $1
+list_certificates(){
+    ~/.acme.sh/acme.sh --list
+}
+
+remove_certificate(){
+    domain=$1
+    [[ -z $domain ]] && red "未输入域名，无法执行操作！" && exit 1
+    ~/.acme.sh/acme.sh --remove -d $domain
+    ~/.acme.sh/acme.sh --deactivate -d $domain
+    sed -i "/$domain/d" /etc/crontab
+    green "已删除域名 $domain 的证书，并停止自动更新"
+}
+
+if [[ $# -eq 0 ]]; then
+    read -p "请输入操作 (issue, list, remove): " action
+    if [[ $action == "issue" || $action == "remove" ]]; then
+        read -p "请输入域名: " domain
+    fi
+else
+    action=$1
+    domain=$2
+fi
+
+case $action in
+    issue)
+        acme_cert $domain
+        ;;
+    list)
+        list_certificates
+        ;;
+    remove)
+        remove_certificate $domain
+        ;;
+    *)
+        red "无效的参数。请使用 {issue|list|remove} [domain]"
+        exit 1
+        ;;
+esac
